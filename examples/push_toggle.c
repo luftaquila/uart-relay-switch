@@ -1,4 +1,4 @@
-#include "relay.h"
+#include "../relay.h"
 
 int main(int argc, char *argv[]) {
   if (relay_setup(argv[1]) < 0) {
@@ -7,7 +7,10 @@ int main(int argc, char *argv[]) {
 
   /***** SWITCH LOGIC START *****/
 
-  // do your own ON/OFF logic here
+  // double press to toggle back
+  ON(100);
+  OFF(300);
+  ON(100);
 
   /****** SWITCH LOGIC END ******/
 

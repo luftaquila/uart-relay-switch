@@ -1,4 +1,4 @@
-#include "relay.h"
+#include "../relay.h"
 
 int main(int argc, char *argv[]) {
   if (relay_setup(argv[1]) < 0) {
@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
 
   /***** SWITCH LOGIC START *****/
 
-  // do your own ON/OFF logic here
+  ON(100); // turn on relay for 100ms
 
   /****** SWITCH LOGIC END ******/
 
