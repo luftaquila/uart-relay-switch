@@ -59,6 +59,8 @@ Then put the executable to somewhere in `PATH`.
 ./push-return /dev/cu.usbmodem51850106861 # example
 ```
 
+* `ON(ms)` connects, and `OFF(ms)` disconnects the `COM` and the `NC` terminal of the relay electrically, for the duration of `ms`.
+
 ## Examples
 * **example/push_return.c**: simple push-return(tact) switch press (ex. T2080RDB reset button)
 * **example/push_toggle.c**: push-toggle switch on&off (ex. IMA-FCC-T2080 power switch)
