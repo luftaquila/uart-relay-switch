@@ -1,18 +1,22 @@
 # uart-relay-switch
-Get your own remote switch with command-line interface, to press your board's reset button programmatically!
+Press a reset button or recycle the power of your board programmatically, with command-line interface remote switch!
 
 ![](assets/image.jpg)
 
-A relay is an switch that operated by electricity. So we need a GPIO to control relay programmatically.
+A relay is an switch that operated by electricity. It could be controlled by a GPIO signal.
 
-However, there is no GPIO interface in most PCs. Instead, we have a USB to UART controller that can emulates GPIO.
+However, there is no GPIO available in most PCs. Instead, we have a USB to UART controller that can emulate one GPIO pin.
 
-We can't control the state(HIGH/LOW) of the TX/RX manually. But `RTS`, Request To Send, is a software-controlled pin that could be used as a GPIO controls relay.
+We can't control the state of the TX/RX manually. But `RTS`, *Request To Send*, is a software-controlled pin that could be used as a GPIO.
 
 ## Prerequisites
-* 1x USB to UART(TTL) serial converter
-* 1x relay
-* few jumper wires
+* 1x [USB to UART(TTL) converter](https://www.eleparts.co.kr/goods/view?no=11328429)
+* 1x [5V relay](https://www.eleparts.co.kr/goods/view?no=12834424)
+* a few jumper wires
+
+Extra components at our drawer
+
+![](assets/parts.jpg){width=50%}
 
 ## Wiring
 
@@ -23,25 +27,28 @@ We can't control the state(HIGH/LOW) of the TX/RX manually. But `RTS`, Request T
                           │                     VCC ├──────────┐
    ┌────────────────┐     │        voltage          │          │        RELAY
    │                │     │        selector     GND ├───────┐  │  ┌───────────────┐          RESET
-   │            ┌───┤     ├───┐                     │       │  └──┤ SIG        NO ├───x      SWITCH
+   │            ┌───┤     ├───┐                     │       │  └──┤ VCC        NO ├───x      SWITCH
    │            │ U │     │ U │      3V3        TXD ├───x   │     │               │       ┌──────────┐
    │      PC    │ S │=====│ S │    ┌─────┐          │       └─────┤ GND       COM ├───────┤          │
    │            │ B │     │ B │    │ VCC │      RXD ├───x         │               │       │          │
-   │            └───┤     ├───┘    │     │          │       ┌─────┤ VCC        NC ├───────┤          │
+   │            └───┤     ├───┘    │     │          │       ┌─────┤ SIG        NC ├───────┤          │
    │                │     │        │ 5V  │      RTS ├───────┘     └───────────────┘       └──────────┘
    └────────────────┘     │        └─────┘          │
                           │                     CTS ├───x
                           └─────────────────────────┘
 ```
 
-* Note that VCC/RTS could be swapped (`VCC-SIG / RTS-VCC` and `VCC-VCC / RTS-SIG` are all possible).
+### Note
+* To correctly power up the relay, the voltage selector at the UART converter must be set to 5V.
+* Since the state of the RTS pin is HIGH when idle, the relay will kept turned on. It will turned off only when the `ON()` function is called. This is why the switch is connected to the `NC` terminal instead of `NO`.
+    * Relay's `NO` and `NC` terminals are *Normally Open* and *Normally Close*.
 
 ## Build
 Implement your own switch logic in *main.c* and compile it with *relay.c*.
 
 ```sh
 gcc relay.c main.c -o switch
-gcc relay.c examples/push_return.c -o switch # example
+gcc relay.c examples/push_return.c -o push-return # example
 ```
 
 Then put the executable to somewhere in `PATH`.
@@ -49,9 +56,10 @@ Then put the executable to somewhere in `PATH`.
 ## Usage
 ```bash
 ./switch /dev/<your_uart_converter>
-./switch /dev/cu.usbmodem51850106861 # example
+./push-return /dev/cu.usbmodem51850106861 # example
 ```
 
 ## Examples
-* **example/push_return.c**: simple push-return(tact) switch press implementation (ex. T2080RDB reset button)
-* **example/push_toggle.c**: push-toggle switch on&off implementation (ex. IMA-FCC-T2080 power switch)
+* **example/push_return.c**: simple push-return(tact) switch press (ex. T2080RDB reset button)
+* **example/push_toggle.c**: push-toggle switch on&off (ex. IMA-FCC-T2080 power switch)
+
